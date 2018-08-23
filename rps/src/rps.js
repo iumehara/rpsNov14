@@ -1,4 +1,4 @@
-function Requests() {
+function Rps() {
   this.play = (p1Hand, p2Hand, observer) => new PlayRequest(p1Hand, p2Hand, observer).process()
 }
 
@@ -31,4 +31,4 @@ function PlayRequest(p1Hand, p2Hand, observer) {
   }
 }
 
-module.exports = Requests
+module.exports = {Requests: Rps}
