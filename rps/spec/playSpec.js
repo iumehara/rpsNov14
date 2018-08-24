@@ -1,4 +1,4 @@
-const Requests = require('../src/rps')
+const {Requests} = require('../src/rps')
 
 describe('play', () => {
   describe('player 1 wins', () => {
