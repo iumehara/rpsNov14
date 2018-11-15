@@ -112,23 +112,37 @@ describe("play", () => {
         expect(ui.tie).not.toHaveBeenCalled()
         expect(ui.invalid).toHaveBeenCalled()
     }
+
+    function play(p1, p2, ui) {
+        new Requests().play(p1, p2, ui)
+    }
 })
 
-function play(p1, p2, ui) {
-    if (
-        !["rock", "paper", "scissors"].includes(p1) ||
-        !["rock", "paper", "scissors"].includes(p2)
-    ) {
-        ui.invalid()
-    } else if (p1 === p2) {
-        ui.tie()
-    } else if (
-        p1 === "rock" && p2 === "scissors" ||
-        p1 === "scissors" && p2 === "paper" ||
-        p1 === "paper" && p2 === "rock"
-    ) {
-        ui.p1Wins()
-    } else {
-        ui.p2Wins()
+function Requests() {
+    this.play = function (p1, p2, ui) {
+        if (isInvalid()) {
+            ui.invalid()
+        } else if (isTie()) {
+            ui.tie()
+        } else if (p1Wins()) {
+            ui.p1Wins()
+        } else {
+            ui.p2Wins()
+        }
+
+        function p1Wins() {
+            return p1 === "rock" && p2 === "scissors" ||
+                p1 === "scissors" && p2 === "paper" ||
+                p1 === "paper" && p2 === "rock"
+        }
+
+        function isTie() {
+            return p1 === p2
+        }
+
+        function isInvalid() {
+            return !["rock", "paper", "scissors"].includes(p1) ||
+                !["rock", "paper", "scissors"].includes(p2)
+        }
     }
 }
