@@ -119,30 +119,36 @@ describe("play", () => {
 })
 
 function Requests() {
-    this.play = function (p1, p2, ui) {
+    this.play = function (p1, p2, Observer ui) {
+       new RequestObject(p1, p2, Observer ui).process()
+    }
+}
+
+function RequestObject(p1, p2, ui) {
+    this.process = () => {
         if (isInvalid()) {
             ui.invalid()
         } else if (isTie()) {
             ui.tie()
-        } else if (p1Wins()) {
+        } else if (player1Wins()) {
             ui.p1Wins()
         } else {
             ui.p2Wins()
         }
+    }
 
-        function p1Wins() {
-            return p1 === "rock" && p2 === "scissors" ||
-                p1 === "scissors" && p2 === "paper" ||
-                p1 === "paper" && p2 === "rock"
-        }
+    function isInvalid() {
+        return !["rock", "paper", "scissors"].includes(p1) ||
+            !["rock", "paper", "scissors"].includes(p2)
+    }
 
-        function isTie() {
-            return p1 === p2
-        }
+    function isTie() {
+        return p1 === p2
+    }
 
-        function isInvalid() {
-            return !["rock", "paper", "scissors"].includes(p1) ||
-                !["rock", "paper", "scissors"].includes(p2)
-        }
+    function player1Wins() {
+        return p1 === "rock" && p2 === "scissors" ||
+            p1 === "scissors" && p2 === "paper" ||
+            p1 === "paper" && p2 === "rock"
     }
 }
