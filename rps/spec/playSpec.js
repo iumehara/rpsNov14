@@ -23,6 +23,18 @@ describe("play", () => {
 
             expectP1Wins(ui)
         })
+
+        it('saves one game result after a game has been played', () => {
+            const repoSpy = jasmine.createSpyObj('repoSpy', ['save'])
+            const uiStub = { p1Wins: () => {} }
+
+            play('paper', 'rock', uiStub, repoSpy)
+
+            expect(repoSpy.save).toHaveBeenCalledTimes(1)
+            expect(repoSpy.save).toHaveBeenCalledWith(
+                new Round('paper', 'rock', 'p1Wins')
+            )
+        })
     })
 
     describe("p2 win scenarios", () => {
@@ -42,6 +54,18 @@ describe("play", () => {
             play("rock", "paper", ui)
 
             expectP2Wins(ui)
+        })
+
+        it('saves one game result after a game has been played', () => {
+            const repoSpy = jasmine.createSpyObj('repoSpy', ['save'])
+            const uiStub = { p2Wins: () => {} }
+
+            play('rock', 'paper', uiStub, repoSpy)
+
+            expect(repoSpy.save).toHaveBeenCalledTimes(1)
+            expect(repoSpy.save).toHaveBeenCalledWith(
+                new Round('rock', 'paper', 'p2Wins')
+            )
         })
     })
 
@@ -63,6 +87,18 @@ describe("play", () => {
 
             expectTie(ui)
         })
+
+        it('saves one game result after a game has been played', () => {
+            const repoSpy = jasmine.createSpyObj('repoSpy', ['save'])
+            const uiStub = { tie: () => {} }
+
+            play('rock', 'rock', uiStub, repoSpy)
+
+            expect(repoSpy.save).toHaveBeenCalledTimes(1)
+            expect(repoSpy.save).toHaveBeenCalledWith(
+                new Round('rock', 'rock', 'tie')
+            )
+        })
     })
 
     describe("invalid scenarios", () => {
@@ -83,6 +119,18 @@ describe("play", () => {
 
             expectInvalid(ui)
         });
+
+        it('saves one game result after a game has been played', () => {
+            const repoSpy = jasmine.createSpyObj('repoSpy', ['save'])
+            const uiStub = { invalid: () => {} }
+
+            play('rock', 'sailboat', uiStub, repoSpy)
+
+            expect(repoSpy.save).toHaveBeenCalledTimes(1)
+            expect(repoSpy.save).toHaveBeenCalledWith(
+                new Round('rock', 'sailboat', 'invalid')
+            )
+        })
     })
 
     function expectP1Wins(ui) {
@@ -113,26 +161,83 @@ describe("play", () => {
         expect(ui.invalid).toHaveBeenCalled()
     }
 
-    function play(p1, p2, ui) {
-        new Requests().play(p1, p2, ui)
+    function play(p1, p2, ui, repo) {
+        if (repo === undefined) {
+            repo = {
+                save: () => {}
+            }
+        }
+
+        new Requests().play(p1, p2, ui, repo)
     }
 })
 
+describe('history', () => {
+    describe('no rounds played', () => {
+        it('tells the ui that no rounds have been played', () => {
+            const emptyRepoStub = {
+                isEmpty: () => { return true }
+            }
+            const uiSpy = jasmine.createSpyObj('uiSpy', ['noRounds'])
+
+            new Requests().getHistory(uiSpy, emptyRepoStub)
+
+            expect(uiSpy.noRounds).toHaveBeenCalled()
+        })
+    })
+
+    describe('rounds have been played', () => {
+        it('round results are returned', () => {
+            const hasRoundsRepoStub = {
+                isEmpty: () => { return false },
+                getAll: () => {
+                    return [new Round('rock', 'sailboat', 'invalid')]
+                }
+            }
+            const uiSpy = jasmine.createSpyObj('uiSpy', ['rounds'])
+
+            new Requests().getHistory(uiSpy, hasRoundsRepoStub)
+
+            expect(uiSpy.rounds).toHaveBeenCalledWith(
+                [new Round('rock', 'sailboat', 'invalid')]
+            )
+        })
+    })
+})
+
+function Round(p1, p2, result) {
+    this.p1 = p1
+    this.p2 = p2
+    this.result = result
+}
+
 function Requests() {
-    this.play = function (p1, p2, Observer ui) {
-       new RequestObject(p1, p2, Observer ui).process()
+    this.play = function (p1, p2, ui, repo) {
+       new RequestObject(p1, p2, ui, repo).process()
+    }
+
+    this.getHistory = function (ui, repo) {
+        if (repo.isEmpty()) {
+            ui.noRounds()
+        } else {
+            ui.rounds(repo.getAll())
+        }
     }
 }
 
-function RequestObject(p1, p2, ui) {
+function RequestObject(p1, p2, ui, repo) {
     this.process = () => {
         if (isInvalid()) {
+            repo.save(new Round(p1, p2, 'invalid'))
             ui.invalid()
         } else if (isTie()) {
+            repo.save(new Round(p1, p2, 'tie'))
             ui.tie()
         } else if (player1Wins()) {
+            repo.save(new Round(p1, p2, 'p1Wins'))
             ui.p1Wins()
         } else {
+            repo.save(new Round(p1, p2, 'p2Wins'))
             ui.p2Wins()
         }
     }
