@@ -24,7 +24,7 @@ describe("RPS App", function () {
     describe('displays content for response', () => {
         it('displays Invalid text if request calls invalid', () => {
             const invalidRequestsStub = {
-                playGame: (p1, p2, observer) => observer.invalid()
+                play: (p1, p2, observer) => observer.invalid()
             }
             renderPlayForm(invalidRequestsStub)
 
@@ -34,9 +34,9 @@ describe("RPS App", function () {
             expect(domFixture.innerText).toContain('Invalid')
         })
 
-        it('displays Player 1 Wins text if request calls player1Wins', () => {
+        it('displays Player 1 Wins text if request calls p1Wins', () => {
             const player1WinsRequestsStub = {
-                playGame: (p1, p2, observer) => observer.player1Wins()
+                play: (p1, p2, observer) => observer.p1Wins()
             }
             renderPlayForm(player1WinsRequestsStub)
 
@@ -46,9 +46,9 @@ describe("RPS App", function () {
             expect(domFixture.innerText).toContain('Player 1 Wins')
         })
 
-        it('displays Player 2 Wins text if request calls player2Wins', () => {
+        it('displays Player 2 Wins text if request calls p2Wins', () => {
             const player2WinsRequestsStub = {
-                playGame: (p1, p2, observer) => observer.player2Wins()
+                play: (p1, p2, observer) => observer.p2Wins()
             }
             renderPlayForm(player2WinsRequestsStub)
 
@@ -60,7 +60,7 @@ describe("RPS App", function () {
 
         it('displays TIE text if request calls tie', () => {
             const tieRequestsStub = {
-                playGame: (p1, p2, observer) => observer.tie()
+                play: (p1, p2, observer) => observer.tie()
             }
             renderPlayForm(tieRequestsStub)
 
@@ -73,7 +73,7 @@ describe("RPS App", function () {
 
     describe('sends hands to request object', () => {
         it('sends player 1 hand and player 2 hand to request', () => {
-            const requestsSpy = jasmine.createSpyObj("requests", ['playGame'])
+            const requestsSpy = jasmine.createSpyObj("requests", ['play'])
             renderPlayForm(requestsSpy)
 
             const p1Input = document.querySelector('[name="p1Throw"]')
@@ -86,7 +86,7 @@ describe("RPS App", function () {
 
             document.querySelector('button').click()
 
-            expect(requestsSpy.playGame)
+            expect(requestsSpy.play)
                 .toHaveBeenCalledWith('rock', 'scissors', jasmine.any(Object))
         })
     })

@@ -11,18 +11,18 @@ class PlayForm extends React.Component {
     }
 
     submitClicked(e) {
-        this.props.requests.playGame(
+        this.props.requests.play(
             this.state.p1Throw,
             this.state.p2Throw,
             this
         )
     }
 
-    player1Wins() {
+    p1Wins() {
         this.setState({result: 'Player 1 Wins'})
     }
 
-    player2Wins() {
+    p2Wins() {
         this.setState({result: 'Player 2 Wins'})
     }
 
