@@ -35,6 +35,7 @@ class PlayForm extends React.Component {
     }
 
     inputChanged(e) {
+        console.log(e)
         this.setState({[e.target.name]: e.target.value})
     }
 

@@ -1,3 +1,5 @@
+const { Round, Requests } = require("rps/src/rps")
+
 const ReactDOM = require('react-dom')
 const React = require('react')
 const PlayForm = require('../src/PlayForm')
@@ -88,6 +90,28 @@ describe("RPS App", function () {
 
             expect(requestsSpy.playGame)
                 .toHaveBeenCalledWith('rock', 'scissors', jasmine.any(Object))
+        })
+    })
+
+    describe('show result history', () => {
+        it('show result list', () => {
+
+            const round = new Round('rock', 'scissors', 'p1Wins')
+
+
+            renderPlayForm(new Requests())
+            const p1Input = document.querySelector('[name="p1Throw"]')
+            p1Input.value = 'rock'
+            ReactTestUtils.Simulate.change(p1Input)
+
+            const p2Input = document.querySelector('[name="p2Throw"]')
+            p2Input.value = 'scissors'
+            ReactTestUtils.Simulate.change(p2Input)
+
+            document.querySelector('button').click()
+
+            const firstItem = document.querySelector('li')
+            expect(firstItem.innerText).toContain(`${round.result}`)
         })
     })
 

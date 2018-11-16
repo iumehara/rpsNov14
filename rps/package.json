@@ -7,5 +7,9 @@
   ],
   "devDependencies": {
     "jasmine": "latest"
-  }
+  },
+  "scripts": {
+    "test": "jasmine spec/*.js"
+  },
+  "dependencies": {}
 }
