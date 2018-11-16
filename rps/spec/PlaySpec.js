@@ -1,8 +1,13 @@
+const Round = require('../src/Round')
+const Requests = require('../src/Rps')
+
 describe("play", () => {
     let ui
+    let repoSpy
 
     beforeEach(() => {
         ui = jasmine.createSpyObj("ui", ["p1Wins", "p2Wins", "tie", "invalid"])
+        repoSpy = jasmine.createSpyObj("repoSpy", ["save"])
     })
 
     describe("p1 win scenarios", () => {
@@ -22,6 +27,15 @@ describe("play", () => {
             play("paper", "rock", ui)
 
             expectP1Wins(ui)
+        })
+
+        it('saves game result after a game has been played', () => {
+            let p1 = 'paper'
+            let p2 = 'rock'
+
+            play(p1, p2, ui, repoSpy)
+
+            expectSave(p1, p2, 'p1Wins')
         })
     })
 
@@ -43,6 +57,15 @@ describe("play", () => {
 
             expectP2Wins(ui)
         })
+
+        it('saves game result after a game has been played', () => {
+            let p1 = 'rock'
+            let p2 = 'paper'
+
+            play(p1, p2, ui, repoSpy)
+
+            expectSave(p1, p2, 'p2Wins')
+        })
     })
 
     describe("tie scenarios", () => {
@@ -63,6 +86,15 @@ describe("play", () => {
 
             expectTie(ui)
         })
+
+        it('saves game result after a game has been played', () => {
+            let p1 = 'rock'
+            let p2 = 'rock'
+
+            play(p1, p2, ui, repoSpy)
+
+            expectSave(p1, p2, 'tie')
+        })
     })
 
     describe("invalid scenarios", () => {
@@ -82,7 +114,16 @@ describe("play", () => {
             play("sailboat", "sailboat", ui)
 
             expectInvalid(ui)
-        });
+        })
+
+        it('saves game result after a game has been played', () => {
+            let p1 = 'rock'
+            let p2 = Math.random()
+
+            play(p1, p2, ui, repoSpy)
+
+            expectSave(p1, p2, 'invalid')
+        })
     })
 
     function expectP1Wins(ui) {
@@ -113,36 +154,24 @@ describe("play", () => {
         expect(ui.invalid).toHaveBeenCalled()
     }
 
-    function play(p1, p2, ui) {
-        new Requests().play(p1, p2, ui)
+    function expectSave(p1, p2, result) {
+        expect(repoSpy.save).toHaveBeenCalledWith(
+            new Round(p1, p2, result)
+        )
+    }
+
+    function play(p1, p2, ui, repo) {
+        if (repo === undefined) {
+            repo = {
+                save: (round) => {
+                }
+            }
+        }
+        new Requests().play(p1, p2, ui, repo)
     }
 })
 
-function Requests() {
-    this.play = function (p1, p2, ui) {
-        if (isInvalid()) {
-            ui.invalid()
-        } else if (isTie()) {
-            ui.tie()
-        } else if (p1Wins()) {
-            ui.p1Wins()
-        } else {
-            ui.p2Wins()
-        }
 
-        function p1Wins() {
-            return p1 === "rock" && p2 === "scissors" ||
-                p1 === "scissors" && p2 === "paper" ||
-                p1 === "paper" && p2 === "rock"
-        }
 
-        function isTie() {
-            return p1 === p2
-        }
 
-        function isInvalid() {
-            return !["rock", "paper", "scissors"].includes(p1) ||
-                !["rock", "paper", "scissors"].includes(p2)
-        }
-    }
-}
+
